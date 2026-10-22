@@ -1,0 +1,72 @@
+name: Pipeline de CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  testes-unitarios:
+    name: Testes unitários
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      
+      - name: Configurar a linguagem - nosso caso Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar as dependências
+        run: |
+          pip install -r requirements.txt
+
+      - name: Rodar os testes unitários
+        run: |
+          pytest tests/unit
+  
+  
+  testes-integracao:
+    name: Testes integração
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      
+      - name: Configurar a linguagem - nosso caso Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar as dependências
+        run: |
+          pip install -r requirements.txt
+
+      - name: Rodar os testes integração
+        run: |
+          pytest tests/integration
+  
+  testes-e2e:
+    name: Testes e2e
+    
+    needs: 
+      - testes-unitarios
+      - testes-integracao
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      
+      - name: Configurar a linguagem - nosso caso Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar as dependências
+        run: |
+          pip install -r requirements.txt
+
+      - name: Rodar os testes e2e
+        run: |
+          pytest tests/e2e
