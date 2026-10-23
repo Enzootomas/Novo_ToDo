@@ -98,3 +98,22 @@ def test_api_deletar_tarefa_com_sucesso(client):
 
     res_busca = client.get(f"/api/todos/{id_criado}")
     assert res_busca.status_code == 404
+    def test_api_criar_tarefa_com_titulo_ausente_ou_em_branco_deve_retornar_400(client):
+    """
+    Verifica que a API rejeita tarefas sem t?tulo ou com t?tulo composto
+    apenas por espa?os, e que nenhuma delas ? adicionada ? lista.
+    """
+    payloads_invalidos = [
+        {"description": "Sem t?tulo"},
+        {"description": "T?tulo em branco", "title": "   "},
+    ]
+
+    for payload in payloads_invalidos:
+        response = client.post("/api/todos", json=payload)
+
+        assert response.status_code == 400
+        assert "error" in response.get_json()
+
+    response = client.get("/api/todos")
+    assert response.status_code == 200
+    assert response.get_json() == []
